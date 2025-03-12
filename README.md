@@ -6,7 +6,7 @@
 
 <br>
 
-欢迎!这是一份 Minecraft Java 版优化指南（AI翻译，未润色）。
+欢迎!这是一份 Minecraft Java 版优化指南（中文版）。
 
 > [!NOTE]
 > 1. 虽然这些调整能明显减少一些服务器和客户端卡顿,但最多只能带来适度的TPS提升和微小的FPS提升,同时可能会略微增加内存和CPU使用率。
@@ -54,7 +54,7 @@
 最小和最大内存参数（`-xms` 和 `-xmx`）应设置为相同的值，如[此处](https://dzone.com/articles/benefits-of-setting-initial-and-maximum-memory-siz)所述。内存大小可以用兆字节或千兆字节设置，因此 `-Xms4096M` 和 `-Xmx8G` 均有效。
 
 <details>
-  <summary>Minecraft几乎占用全部RAM的低内存系统</summary>
+  <summary>在低内存系统中Minecraft会几乎占用全部RAM</summary>
 
 将最小内存设置为低于最大内存以尽可能节省内存。同时尝试移除以下参数并改用服务器垃圾回收参数：
 - `-XX:NmethodSweepActivity=1`

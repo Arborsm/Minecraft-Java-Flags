@@ -5,6 +5,8 @@ Copyright (c) `2022 - 2023` `brucethemoose`
 
 Copyright (c) `2023 - 2024` `Mukul Kedia`
 
+Copyright (c) `2023 - 2024` `Arborsm`
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
