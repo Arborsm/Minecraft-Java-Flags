@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/kyechan99/capsule-render">
-    <img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=timeGradient&text=Minecraft%20Java%20优化指南&fontAlignY=46&animation=fadeIn">
+    <img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=timeGradient&text=Minecraft%20Java%20优化指南&fontAlignY=40&animation=fadeIn">
   </a>
 </div>
 
@@ -16,7 +16,6 @@
 <br>
 
 # 性能优化模组
-
 你可能会想"这很奇怪,为什么这里会出现性能优化模组?",但性能优化模组能带来比任何Java参数都更大的性能提升。如果你想追求纯粹的性能,不要只使用Optifine。有更好的性能优化模组,比如[Sodium](https://modrinth.com/mod/sodium)。Sodium原生支持Fabric(不像Optifine),其0.6 beta版本也支持NeoForge。
 
 如果你想要纯粹的性能优化,可以看看[Simply Optimized](https://modrinth.com/modpack/sop)和[Adrenaline](https://modrinth.com/modpack/adrenaline)这两个整合包作为例子。
@@ -52,61 +51,91 @@
 <br>
 
 # 内存分配
-最小和最大内存参数(`-xms`和`-xmx`)应设置为相同的值,如[这里](https://dzone.com/articles/benefits-of-setting-initial-and-maximum-memory-siz)所解释的那样,但有一个注意事项:如果你使用的是低内存系统,而Minecraft占用了几乎所有的RAM,那么将最小内存设置为低于最大内存,以尽可能节省内存。同时尝试移除这些参数:
-```
--XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M
-```
-并尝试使用服务器垃圾收集参数。
+最小和最大内存参数（`-xms` 和 `-xmx`）应设置为相同的值，如[此处](https://dzone.com/articles/benefits-of-setting-initial-and-maximum-memory-siz)所述。内存大小可以用兆字节或千兆字节设置，因此 `-Xms4096M` 和 `-Xmx8G` 均有效。
 
-大小以兆字节或千兆字节设置,所以`-Xms4096M`或`-Xmx8G`都是正确的。
+<details>
+  <summary>Minecraft几乎占用全部RAM的低内存系统</summary>
+
+将最小内存设置为低于最大内存以尽可能节省内存。同时尝试移除以下参数并改用服务器垃圾回收参数：
+- `-XX:NmethodSweepActivity=1`
+- `-XX:ReservedCodeCacheSize=400M`
+- `-XX:NonNMethodCodeHeapSize=12M`
+- `-XX:ProfiledCodeHeapSize=194M`
+- `-XX:NonProfiledCodeHeapSize=194M`
+  
+</details>
 
 > [!NOTE]
-> 1. 分配过多的内存可能会破坏垃圾收集或只是减慢Minecraft的速度,即使你有足够的内存。分配太少也可能会减慢或破坏游戏。在Minecraft运行时密切关注任务管理器(或你的桌面环境的系统监视器),只分配它需要的内存(通常不超过8G)。`sparkc gcmonitor`会告诉你分配是否过高(暂停时间太长)或过低(频繁的GC,并且在通知中有低内存警告)。
->
-> 2. 如果你使用第三方Minecraft启动器,如Prism Launcher或ATLauncher,你不应该使用内存参数,而应该通过启动器中的专用部分来控制内存。
+> 1. 分配过多内存可能破坏垃圾回收机制或直接拖慢游戏，即使你有充足内存。分配过少同样会导致性能下降或崩溃。运行Minecraft时密切观察任务管理器（或系统监视器），仅分配必要内存（通常不超过8G）。使用 `/sparkc gcmonitor` 可检测内存分配是否过高（暂停时间过长）或过低（频繁GC并出现低内存警告）。
+> 
+> 2. 若使用Prism Launcher或ATLauncher等第三方启动器，请勿直接使用内存参数，而应通过启动器的专用内存设置界面配置。
 
 <br>
 
 # 基础Java参数
-这些是大部分的参数。以下参数适用于任何***OpenJDK*** 11+版本。它们在服务器和客户端上是相同的:
+<details>
+  <summary>OpenJDK</summary>
 
-```
--XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1
-```
+### OpenJDK 8-（不推荐）
 
-对于GraalVM Java 17+,请改用以下参数:
-```
--XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1
-```
-对于Platform Prime,通常不需要使用特殊参数进行调整,但大页面仍然适用。
-
-对于OpenJ9,你可以尝试使用以下参数,但不推荐使用OpenJ9:
-```
--XX:+IdleTuningGcOnIdle -XX:+UseAggressiveHeapShrink -XX:-OmitStackTraceInFastThrow -XX:+UseFastAccessorMethods -XX:+OptimizeStringConcat -Xshareclasses:allowClasspaths -Xshareclasses:cacheDir=./cache -Xaot -XX:+UseCompressedOops -XX:ObjectAlignmentInBytes=256 -Xshareclasses -XX:SharedCacheHardLimit=800M -Xtune:virtualized -XX:+TieredCompilation -XX:InitialTenuringThreshold=5 -Dlog4j2.formatMsgNoLookups=true -XX:-DisableExplicitGC -XX:InitiatingHeapOccupancyPercent=35 -XX:+UnlockExperimentalVMOptions -XX:MaxGCPauseMillis=6 -Djava.net.preferIPv4Stack=true -XX:-ParallelRefProcEnabled-XX:+UseTLAB -XX:ReservedCodeCacheSize=70M -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20
-```
-
-### Java 8
-
-我强烈建议不要使用Java 8,除非必要,但如果必须使用,这些参数适用于OpenJDK 8:
 ```
 -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:+PerfDisableSharedMem -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -XX:MaxInlineLevel=15 -XX:MaxVectorSize=32 -XX:+UseCompressedOops -XX:ThreadPriorityPolicy=1 -XX:+UseDynamicNumberOfGCThreads -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=350M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseFPUForSpilling
 ```
 
-你也可以从[Oracle网站的21.X部分](https://www.oracle.com/downloads/graalvm-downloads.html)获取Java 8版本的GraalVM EE,对于这个版本,请改用以下参数:
+### OpenJDK 11+
+
+```
+-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1
+```
+</details>
+
+<details>
+  <summary>GraalVM</summary>
+
+### GraalVM 11-（不推荐）
+
 ```
 -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -XX:ThreadPriorityPolicy=1 -XX:+UseDynamicNumberOfGCThreads -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=350M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseFPUForSpilling -XX:+EnableJVMCI -XX:+UseJVMCICompiler -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1 -Dgraal.CompilerConfiguration=enterprise -Dgraal.UsePriorityInlining=true -Dgraal.Vectorization=true -Dgraal.OptDuplication=true -Dgraal.DetectInvertedLoopsAsCounted=true -Dgraal.LoopInversion=true -Dgraal.VectorizeHashes=true -Dgraal.EnterprisePartialUnroll=true -Dgraal.VectorizeSIMD=true -Dgraal.StripMineNonCountedLoops=true -Dgraal.SpeculativeGuardMovement=true -Dgraal.InfeasiblePathCorrelation=true
 ```
-不过,如果你运行着色器,请确保将`-Dgraal.VectorizeSIMD`设置为`false`,因为这个版本会导致问题。这个旧版本还会破坏1.16.5 Astral Sorcery中的星座渲染。这可能与着色器bug有关。参见: https://github.com/HellFirePvP/AstralSorcery/issues/1963
+
+若使用着色器，请将 `-Dgraal.VectorizeSIMD` 设为 `false`，因此版本存在兼容问题。该旧版本还会导致1.16.5 Astral Sorcery的星座渲染异常（可能与着色器Bug相关）。详见：https://github.com/HellFirePvP/AstralSorcery/issues/1963
+
+### GraalVM 17+
+
+```
+-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1
+```
+</details>
+
+<details>
+  <summary>OpenJ9</summary>
+
+### OpenJ9（不推荐）
+
+```
+-XX:+IdleTuningGcOnIdle -XX:+UseAggressiveHeapShrink -XX:-OmitStackTraceInFastThrow -XX:+UseFastAccessorMethods -XX:+OptimizeStringConcat -Xshareclasses:allowClasspaths -Xshareclasses:cacheDir=./cache -Xaot -XX:+UseCompressedOops -XX:ObjectAlignmentInBytes=256 -Xshareclasses -XX:SharedCacheHardLimit=800M -Xtune:virtualized -XX:+TieredCompilation -XX:InitialTenuringThreshold=5 -Dlog4j2.formatMsgNoLookups=true -XX:-DisableExplicitGC -XX:InitiatingHeapOccupancyPercent=35 -XX:+UnlockExperimentalVMOptions -XX:MaxGCPauseMillis=6 -Djava.net.preferIPv4Stack=true -XX:-ParallelRefProcEnabled-XX:+UseTLAB -XX:ReservedCodeCacheSize=70M -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20
+```
+
+</details>
+
+<details>
+  <summary>Platform Prime</summary>
+
+### Platform Prime
+
+通常无需特殊参数调优，但仍建议启用大页支持。详见：https://github.com/brucethemoose/Minecraft-Performance-Flags-Benchmarks/issues/49#issuecomment-1716138313
+  
+</details>
 
 <br>
 
-# 垃圾收集
-**垃圾收集参数应该添加到Minecraft服务器和客户端**,因为默认的停止和收集垃圾的"暂停"会在客户端表现为卡顿,在服务器上表现为延迟。使用Spark中的`/sparkc gcmonitor`命令在游戏中观察暂停。_任何_老年代暂停都是不好的,而年轻代G1GC收集应该不频繁,但短到无法察觉。  
+# 垃圾回收
+**垃圾回收参数应同时应用于Minecraft服务器和客户端**，因为默认的"暂停回收"机制会在客户端表现为卡顿，在服务器表现为延迟。使用Spark的 `/sparkc gcmonitor` 命令在游戏中观察暂停情况。任何老年代暂停都是不良现象，而年轻代G1GC回收应不频繁且短暂到难以察觉。
 
 <br>
 
-### 非主动ZGC
-非主动ZGC非常适合高内存/高核心数的服务器。它对服务器吞吐量没有我可以测量到的影响,而且绝对不会造成卡顿。然而,它比其他垃圾收集器需要更多的RAM和更多的核心。使用以下参数启用它:
+### 非主动ZGC 
+非主动ZGC适合高内存/多核服务器。经测试其对服务器吞吐量无负面影响，且完全消除卡顿。但相比其他回收器需要更多内存和核心。启用参数：
 ```
 -XX:+UseZGC -XX:AllocatePrefetchStyle=1 -XX:-ZProactive
 ```
@@ -202,18 +231,23 @@ G1GC是所有JRE的默认垃圾收集器。Aikar的[著名Minecraft服务器G1GC
 
 启用大页面可以通过减少系统负载来提高Minecraft服务器和客户端的性能。[这里有一个很好的指南](https://kstefanj.github.io/2021/05/19/large-pages-and-java.html)
 
+Add:
+```
+-XX:+UseLargePages -XX:LargePageSizeInBytes=2m
+```
+
+Check and see if large pages is working with the `-Xlog:gc+init` java argument in Java 17. 
+
+In any Java version/platform, if large pages isn't working, you will get a warning in the log similar to this: 
+
+```
+Java HotSpot(TM) 64-Bit Server VM warning: JVM cannot use large page memory because it does not have enough privilege to lock pages in memory.
+```
+
 > [!NOTE]
 > 1. Windows家庭版没有`gpedit.msc`,因此无法按照上面的指南操作,请改用[这个指南](https://awesomeprojectsxyz.blogspot.com/2017/11/windows-10-home-how-to-enable-lock.html?m=1),另外由于微软已经下架了提到的工具,你必须从[这里](https://gist.github.com/eyecatchup/0107bab3d92473cb8a3d3547848fc442)下载。
 >
 > 2. 在Linux上,你通常应该使用`-XX:+UseTransparentHugePages`。
-
-将`-XX:+UseLargePages -XX:LargePageSizeInBytes=2m`添加到你的参数中。
-
-在Java 17中使用`-Xlog:gc+init`java参数检查大页面是否正常工作。
-
-在任何Java版本/平台上,如果大页面不起作用,你会在日志中看到类似这样的警告:
-
-`Java HotSpot(TM) 64-Bit Server VM warning: JVM cannot use large page memory because it does not have enough privilege to lock pages in memory.`
 
 <br/>
 
@@ -260,5 +294,3 @@ Linux用户可以在启动命令的开头添加`sudo nice -n -10`。
 - Linux Wayland用户应该研究如何在Wayland上原生运行Minecraft,而不是通过xwayland。
 
 - 关闭后台的所有程序,包括Discord、游戏启动器和你的浏览器!Minecraft是资源密集型的,不喜欢其他应用程序产生CPU中断或消耗磁盘I/O、RAM等。
-
-<br/>
