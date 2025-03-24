@@ -87,6 +87,13 @@
 ```
 -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1
 ```
+
+### Extra Performance Flags (Experimental)[^1]
+
+```
+-XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -XX:+UseStringDeduplication -XX:+UseAES -XX:+UseAESIntrinsics -XX:+UseFMA -XX:+UseLoopPredicate -XX:+RangeCheckElimination -XX:+OptimizeStringConcat -XX:+UseCompressedOops -XX:+UseThreadPriorities -XX:+OmitStackTraceInFastThrow -XX:+RewriteBytecodes -XX:+RewriteFrequentPairs -XX:+UseFPUForSpilling -XX:+UseNewLongLShift -XX:+UseVectorCmov -XX:+UseXMMForArrayCopy -XX:+UseXmmI2D -XX:+UseXmmI2F -XX:+UseXmmLoadAndClearUpper -XX:+UseXmmRegToRegMoveAll -XX:+EliminateLocks -XX:+DoEscapeAnalysis -XX:+AlignVector -XX:+OptimizeFill -XX:+EnableVectorSupport -XX:+UseCharacterCompareIntrinsics -XX:+UseCopySignIntrinsic -XX:+UseVectorStubs -XX:UseAVX=2 -XX:UseSSE=4 -XX:+UseFastJNIAccessors -XX:+UseInlineCaches -XX:+SegmentedCodeCache
+```
+
 </details>
 
 <details>
@@ -103,8 +110,21 @@
 ### GraalVM 17+
 
 ```
--XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1
+-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI
 ```
+
+### Extra Performance Flags (Experimental)[^1]
+
+```
+-XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+UseStringDeduplication -XX:+UseAES -XX:+UseAESIntrinsics -XX:+UseFMA -XX:+UseLoopPredicate -XX:+RangeCheckElimination -XX:+OptimizeStringConcat -XX:+UseCompressedOops -XX:+UseThreadPriorities -XX:+OmitStackTraceInFastThrow -XX:+RewriteBytecodes -XX:+RewriteFrequentPairs -XX:+UseFPUForSpilling -XX:+UseNewLongLShift -XX:+UseVectorCmov -XX:+UseXMMForArrayCopy -XX:+UseXmmI2D -XX:+UseXmmI2F -XX:+UseXmmLoadAndClearUpper -XX:+UseXmmRegToRegMoveAll -XX:+EliminateLocks -XX:+DoEscapeAnalysis -XX:+AlignVector -XX:+OptimizeFill -XX:+EnableVectorSupport -XX:+UseCharacterCompareIntrinsics -XX:+UseCopySignIntrinsic -XX:+UseVectorStubs -XX:UseAVX=2 -XX:UseSSE=4 -XX:+UseFastJNIAccessors -XX:+UseInlineCaches -XX:+SegmentedCodeCache
+```
+
+### Extra GraalVM Arguments (Experimental)[^1]
+
+```
+-Dgraal.UsePriorityInlining=true -Dgraal.Vectorization=true -Dgraal.OptDuplication=true -Dgraal.DetectInvertedLoopsAsCounted=true  -Dgraal.LoopInversion=true -Dgraal.VectorizeHashes=true -Dgraal.EnterprisePartialUnroll=true -Dgraal.VectorizeSIMD=true -Dgraal.StripMineNonCountedLoops=true  -Dgraal.SpeculativeGuardMovement=true -Dgraal.TuneInlinerExploration=1 -Dgraal.LoopRotation=true -Dgraal.OptWriteMotion=true -Dgraal.CompilerConfiguration=enterprise
+```
+
 </details>
 
 <details>
@@ -126,6 +146,9 @@
 通常无需特殊参数调优，但仍建议启用大页支持。详见：https://github.com/brucethemoose/Minecraft-Performance-Flags-Benchmarks/issues/49#issuecomment-1716138313
   
 </details>
+
+> [!NOTE]
+> Adding `--add-modules=jdk.incubator.vector` can help some server softwares like like Pufferfish and Purpur with explicit support for it.
 
 <br>
 
@@ -229,16 +252,20 @@ G1GC是所有JRE的默认垃圾收集器。Aikar的[著名Minecraft服务器G1GC
 > [!CAUTION]
 > 一些指南说你必须在Windows上以管理员身份运行Java和启动器。这已被证明是错误的,而且是一个重大的安全风险。
 
-启用大页面可以通过减少系统负载来提高Minecraft服务器和客户端的性能。[这里有一个很好的指南](https://kstefanj.github.io/2021/05/19/large-pages-and-java.html)
+> [!NOTE]
+> 如果你为 Minecraft 分配超过 8 GB 内存，在 Windows 系统上 Java 可能会崩溃。更多细节请参阅此问题：https://github.com/adoptium/adoptium-support/issues/626  
+> 你可以尝试在管理员终端中运行 `enable-mmagent -pagecombining` 命令来修复此问题。
 
-Add:
+启用大页面可以通过减少系统负载来提高Minecraft服务器和客户端的性能。[Here's a good guide](https://kstefanj.github.io/2021/05/19/large-pages-and-java.html)
+
+添加:
 ```
 -XX:+UseLargePages -XX:LargePageSizeInBytes=2m
 ```
 
-Check and see if large pages is working with the `-Xlog:gc+init` java argument in Java 17. 
+检查并确认在 Java 17 中通过 `-Xlog:gc+init` 参数是否成功启用了大页（Large Pages）支持。
 
-In any Java version/platform, if large pages isn't working, you will get a warning in the log similar to this: 
+对于任何 Java 版本或平台，如果大页面功能未生效，日志中会出现类似如下的警告：
 
 ```
 Java HotSpot(TM) 64-Bit Server VM warning: JVM cannot use large page memory because it does not have enough privilege to lock pages in memory.
@@ -294,3 +321,7 @@ Linux用户可以在启动命令的开头添加`sudo nice -n -10`。
 - Linux Wayland用户应该研究如何在Wayland上原生运行Minecraft,而不是通过xwayland。
 
 - 关闭后台的所有程序,包括Discord、游戏启动器和你的浏览器!Minecraft是资源密集型的,不喜欢其他应用程序产生CPU中断或消耗磁盘I/O、RAM等。
+
+<br />
+
+[^1]: https://github.com/MeowIce/meowice-flags
